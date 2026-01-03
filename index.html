@@ -2,9 +2,10 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Carte du monde – Pays et villes</title>
+<title>Carte du monde interactive – pays et villes</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
@@ -23,7 +24,7 @@
 
 <div id="controls">
   <label>Pays :</label>
-  <input id="countryInput" placeholder="France">
+  <input id="countryInput" placeholder="France"/>
   <button onclick="colorCountry()">Colorer en bleu</button>
   <span style="margin-left:20px;">Clique sur la carte pour ajouter une ville</span>
 </div>
@@ -31,58 +32,40 @@
 <div id="map"></div>
 
 <script>
-  // Carte
+  // Initialisation de la carte
   const map = L.map('map').setView([20, 0], 2);
 
+  // Fond OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
 
-  // Style des pays
+  // Styles
   function defaultStyle() {
-    return {
-      color: '#555',
-      weight: 1,
-      fillOpacity: 0
-    };
+    return { color: '#555', weight: 1, fillOpacity: 0 };
   }
 
   function blueStyle() {
-    return {
-      fillColor: 'blue',
-      fillOpacity: 0.5
-    };
+    return { fillColor: 'blue', fillOpacity: 0.5 };
   }
 
-  // === GEOJSON SIMPLIFIÉ DES PAYS (frontières uniquement) ===
-  // Source : Natural Earth (simplifié)
-  const countriesGeoJSON = {
-    "type":"FeatureCollection",
-    "features":[
-      {"type":"Feature","properties":{"name":"France"},"geometry":{"type":"Polygon","coordinates":[[[ -5,42],[8,42],[8,51],[-5,51],[-5,42 ]]]}},
-      {"type":"Feature","properties":{"name":"Spain"},"geometry":{"type":"Polygon","coordinates":[[[-9,36],[3,36],[3,43],[-9,43],[-9,36]]]}},
-      {"type":"Feature","properties":{"name":"Germany"},"geometry":{"type":"Polygon","coordinates":[[[5,47],[15,47],[15,55],[5,55],[5,47]]]}},
-      {"type":"Feature","properties":{"name":"Italy"},"geometry":{"type":"Polygon","coordinates":[[[8,37],[18,37],[18,47],[8,47],[8,37]]]}},
-      {"type":"Feature","properties":{"name":"United States"},"geometry":{"type":"Polygon","coordinates":[[[-125,25],[-66,25],[-66,49],[-125,49],[-125,25]]]}},
-      {"type":"Feature","properties":{"name":"Brazil"},"geometry":{"type":"Polygon","coordinates":[[[-74,-34],[-34,-34],[-34,5],[-74,5],[-74,-34]]]}},
-      {"type":"Feature","properties":{"name":"China"},"geometry":{"type":"Polygon","coordinates":[[[73,18],[135,18],[135,54],[73,54],[73,18]]]}},
-      {"type":"Feature","properties":{"name":"Australia"},"geometry":{"type":"Polygon","coordinates":[[[113,-44],[154,-44],[154,-10],[113,-10],[113,-44]]]}}
-    ]
-  };
+  // Chargement des pays depuis GeoJSON complet
+  let countriesLayer;
 
-  // Ajout des pays
-  const countriesLayer = L.geoJSON(countriesGeoJSON, {
-    style: defaultStyle
-  }).addTo(map);
+  fetch("https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json")
+    .then(res => res.json())
+    .then(data => {
+      countriesLayer = L.geoJSON(data, { style: defaultStyle }).addTo(map);
+    });
 
-  // Colorer un pays
+  // Fonction pour colorer un pays par son nom
   function colorCountry() {
     const input = document.getElementById('countryInput').value.toLowerCase();
+    if (!countriesLayer) return;
 
     countriesLayer.eachLayer(layer => {
       const name = layer.feature.properties.name.toLowerCase();
       layer.setStyle(defaultStyle());
-
       if (name === input) {
         layer.setStyle(blueStyle());
         map.fitBounds(layer.getBounds());
@@ -90,7 +73,7 @@
     });
   }
 
-  // Ajout des villes
+  // Ajouter une ville au clic
   map.on('click', e => {
     const name = prompt("Nom de la ville ?");
     if (!name) return;
@@ -105,6 +88,9 @@
 
 </body>
 </html>
+
+
+
 
 
 
