@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Carte du monde – Pays et villes</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; }
+  #controls {
+    padding: 10px;
+    background: #f2f2f2;
+    border-bottom: 1px solid #ccc;
+  }
+  #map { height: calc(100vh - 60px); }
+  input, button { padding: 5px; font-size: 14px; }
+</style>
+</head>
+
+<body>
+
+<div id="controls">
+  <label>Pays :</label>
+  <input id="countryInput" placeholder="France">
+  <button onclick="colorCountry()">Colorer en bleu</button>
+  <span style="margin-left:20px;">Clique sur la carte pour ajouter une ville</span>
+</div>
+
+<div id="map"></div>
+
+<script>
+  // Carte
+  const map = L.map('map').setView([20, 0], 2);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© Open
