@@ -35,4 +35,76 @@
   const map = L.map('map').setView([20, 0], 2);
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© Open
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Style des pays
+  function defaultStyle() {
+    return {
+      color: '#555',
+      weight: 1,
+      fillOpacity: 0
+    };
+  }
+
+  function blueStyle() {
+    return {
+      fillColor: 'blue',
+      fillOpacity: 0.5
+    };
+  }
+
+  // === GEOJSON SIMPLIFIÉ DES PAYS (frontières uniquement) ===
+  // Source : Natural Earth (simplifié)
+  const countriesGeoJSON = {
+    "type":"FeatureCollection",
+    "features":[
+      {"type":"Feature","properties":{"name":"France"},"geometry":{"type":"Polygon","coordinates":[[[ -5,42],[8,42],[8,51],[-5,51],[-5,42 ]]]}},
+      {"type":"Feature","properties":{"name":"Spain"},"geometry":{"type":"Polygon","coordinates":[[[-9,36],[3,36],[3,43],[-9,43],[-9,36]]]}},
+      {"type":"Feature","properties":{"name":"Germany"},"geometry":{"type":"Polygon","coordinates":[[[5,47],[15,47],[15,55],[5,55],[5,47]]]}},
+      {"type":"Feature","properties":{"name":"Italy"},"geometry":{"type":"Polygon","coordinates":[[[8,37],[18,37],[18,47],[8,47],[8,37]]]}},
+      {"type":"Feature","properties":{"name":"United States"},"geometry":{"type":"Polygon","coordinates":[[[-125,25],[-66,25],[-66,49],[-125,49],[-125,25]]]}},
+      {"type":"Feature","properties":{"name":"Brazil"},"geometry":{"type":"Polygon","coordinates":[[[-74,-34],[-34,-34],[-34,5],[-74,5],[-74,-34]]]}},
+      {"type":"Feature","properties":{"name":"China"},"geometry":{"type":"Polygon","coordinates":[[[73,18],[135,18],[135,54],[73,54],[73,18]]]}},
+      {"type":"Feature","properties":{"name":"Australia"},"geometry":{"type":"Polygon","coordinates":[[[113,-44],[154,-44],[154,-10],[113,-10],[113,-44]]]}}
+    ]
+  };
+
+  // Ajout des pays
+  const countriesLayer = L.geoJSON(countriesGeoJSON, {
+    style: defaultStyle
+  }).addTo(map);
+
+  // Colorer un pays
+  function colorCountry() {
+    const input = document.getElementById('countryInput').value.toLowerCase();
+
+    countriesLayer.eachLayer(layer => {
+      const name = layer.feature.properties.name.toLowerCase();
+      layer.setStyle(defaultStyle());
+
+      if (name === input) {
+        layer.setStyle(blueStyle());
+        map.fitBounds(layer.getBounds());
+      }
+    });
+  }
+
+  // Ajout des villes
+  map.on('click', e => {
+    const name = prompt("Nom de la ville ?");
+    if (!name) return;
+
+    L.circleMarker(e.latlng, {
+      radius: 5,
+      color: 'red',
+      fillOpacity: 1
+    }).addTo(map).bindPopup(name);
+  });
+</script>
+
+</body>
+</html>
+
+
+
